@@ -1,0 +1,10 @@
+# Enforce LF (Unix/Linux) line endings for all text files in the repository
+* text=auto eol=lf
+
+# Explicitly enforce LF for shell scripts and C/C++ sources
+*.sh text eol=lf
+*.cpp text eol=lf
+*.hpp text eol=lf
+*.ld text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf

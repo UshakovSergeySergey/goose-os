@@ -1,0 +1,30 @@
+BasedOnStyle: Google
+Language: Cpp
+Standard: c++20
+
+# Indentation and line wrapping
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 120
+
+# Preserve #include order (critical in OSDev where header dependencies matter)
+SortIncludes: false
+
+# Indent declarations inside namespaces and bind pointers/references to the type
+NamespaceIndentation: All
+PointerAlignment: Left
+
+# Keep control flow blocks and functions multi-line for readability
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+
+# Formatting for classes, templates, and initializer lists
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+SpaceAfterTemplateKeyword: true
+Cpp11BracedListStyle: false

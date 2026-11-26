@@ -16,9 +16,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(kernel.elf
     src/main.cpp
+    src/drivers/serial.cpp
 )
 
 target_include_directories(kernel.elf PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/third-party/limine/limine-protocol/include
 )
 
@@ -39,7 +41,7 @@ target_compile_options(kernel.elf PRIVATE
     -Wextra
 )
 
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker.ld)
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/src/arch/x86_64/linker.ld)
 set_target_properties(kernel.elf PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
 
 target_link_options(kernel.elf PRIVATE

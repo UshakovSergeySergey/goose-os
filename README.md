@@ -1,66 +1,69 @@
 # GooseOS
 
-Минимальное 64-битное ядро операционной системы на C++20 для архитектуры `x86_64`, использующее загрузчик **Limine** (`v12.11.1`, ревизия протокола `6`).
+*Читать на русском: [README.ru.md](README.ru.md)*
 
-## Структура проекта
+An educational 64-bit `x86_64` operating system kernel written from scratch in freestanding C++20 using the **Limine** boot protocol (`v12.11.1`, base revision `6`).
 
-* `src/main.cpp` — точка входа в ядро (`kmain`) и базовая работа с видеопамятью (Framebuffer).
-* `linker.ld` — скрипт линковщика (Higher Half Kernel, раскладка сегментов по страницам 4 КБ).
-* `limine.conf` — конфигурация загрузчика.
-* `scripts/setup.sh` — скрипт загрузки и сборки SDK Limine в `third-party/limine`.
-* `CMakeLists.txt` — конфигурация кросс-компиляции (`x86_64-elf`) и упаковки загрузочного `.iso`.
+## Project Structure
 
-## Зависимости (Ubuntu / Debian)
+* `src/main.cpp` — kernel entry point (`kmain`) and linear framebuffer initialization.
+* `src/arch/x86_64/cpu.hpp` — low-level CPU control primitives (`cli`, `sti`, `hlt`, `pause`).
+* `src/arch/x86_64/port.hpp` — type-safe x86 I/O port access (`read<T>`, `write<T>`, `wait`).
+* `src/arch/x86_64/linker.ld` — Higher Half Kernel (`0xffffffff80000000`) linker script with 4 KB page alignment.
+* `src/drivers/serial.hpp` / `serial.cpp` — UART 16550 (`COM1`) serial port driver for early kernel logging.
+* `src/lib/traits.hpp` — freestanding C++20 type traits and concepts.
+* `limine.conf` — Limine bootloader configuration.
+* `scripts/setup.sh` — downloads and builds the Limine bootloader SDK into `third-party/limine`.
+* `scripts/make-bootable-usb.sh` — flashes the hybrid ISO image onto a USB drive.
+* `CMakeLists.txt` — `x86_64-elf` cross-compilation and hybrid ISO packaging setup.
 
-Для сборки и запуска потребуются:
-* `clang`, `lld`, `cmake`
-* `xorriso` (для создания гибридного ISO-образа)
-* `qemu-system-x86` (для запуска в виртуальной машине)
-* `curl`, `tar`, `make`, `gcc` (для первичной настройки Limine)
+## Prerequisites (Ubuntu / Debian)
+
+Install the required toolchain, ISO builder, and emulator:
 
 ```bash
 sudo apt update && sudo apt install -y clang lld cmake xorriso qemu-system-x86 curl tar make gcc
 ```
 
-## Первичная настройка и сборка
+## Building and Running
 
-1. **Скачать и подготовить загрузчик Limine** (выполняется один раз после клонирования):
+1. **Download and build the Limine bootloader SDK** (run once after cloning):
    ```bash
    ./scripts/setup.sh
    ```
 
-2. **Сконфигурировать сборку CMake** (выполняется один раз или после изменения `CMakeLists.txt`):
+2. **Configure the CMake build** (run once or after modifying `CMakeLists.txt`):
    ```bash
    cmake -B build
    ```
 
-3. **Собрать образ и запустить в QEMU:**
+3. **Build the ISO image and run in QEMU** (serial logs are routed to `stdio`):
    ```bash
    cmake --build build --target run
    ```
 
-## Цели сборки (CMake Targets)
+## CMake Targets
 
-| Команда | Описание |
+| Command | Description |
 | :--- | :--- |
-| `cmake --build build` | Цель по умолчанию (`all`): компилирует ядро и собирает `build/goose-os.iso`. |
-| `cmake --build build --target kernel.elf` | Компилирует и линкует только исполняемый бинарник ядра `build/kernel.elf`. |
-| `cmake --build build --target iso` | Собирает гибридный загрузочный образ `build/goose-os.iso` (BIOS + UEFI). |
-| `cmake --build build --target run` | Собирает актуальный `.iso` и запускает его в эмуляторе QEMU. |
-| `cmake --build build --target clean` | Очищает скомпилированные объектные файлы и бинарник ядра. |
+| `cmake --build build` | Default target (`all`): compiles the kernel and builds `build/goose-os.iso`. |
+| `cmake --build build --target kernel.elf` | Compiles and links only the kernel ELF binary (`build/kernel.elf`). |
+| `cmake --build build --target iso` | Builds the hybrid BIOS/UEFI bootable image (`build/goose-os.iso`). |
+| `cmake --build build --target run` | Builds the latest ISO image and launches it in QEMU with serial output. |
+| `cmake --build build --target clean` | Removes compiled object files and the kernel binary. |
 
-## Запись на USB-флешку
+## Flashing to a USB Drive
 
-Для создания загрузочной флешки (режим побитовой записи `dd` для BIOS и UEFI):
+To create a bootable USB drive (raw `dd` mode supporting both BIOS and UEFI):
 
-1. Определите имя устройства вашей флешки (например, `/dev/sdb`):
+1. Identify your USB drive device name (e.g., `/dev/sdb`):
    ```bash
    lsblk -o NAME,SIZE,MODEL,TRAN
    ```
 
-2. Запишите собранный образ с помощью скрипта (все данные на флешке будут удалены):
+2. Flash the built ISO image using the helper script (**all data on the target drive will be erased**):
    ```bash
    sudo ./scripts/make-bootable-usb.sh build/goose-os.iso /dev/sdX
    ```
 
-> **Примечание:** для запуска на реальном ПК в настройках UEFI необходимо отключить **Secure Boot**.
+> **Note:** To boot on real hardware, disable **Secure Boot** in your UEFI firmware settings.
