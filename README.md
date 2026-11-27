@@ -2,6 +2,8 @@
 
 *Читать на русском: [README.ru.md](README.ru.md)*
 
+![GooseOS Preview](docs/preview.png)
+
 An educational 64-bit `x86_64` operating system kernel written from scratch in freestanding C++20 using the **Limine** boot protocol (`v12.11.1`, base revision `6`).
 
 ## Project Structure
