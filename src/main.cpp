@@ -4,6 +4,8 @@
 
 #include "arch/x86_64/cpu.hpp"
 #include "drivers/serial.hpp"
+#include "gfx/console.hpp"
+#include "lib/log.hpp"
 
 namespace {
 
@@ -24,55 +26,41 @@ namespace {
 }  // namespace
 
 extern "C" void kmain() {
+  drivers::Serial::initialize();
+
   if (!LIMINE_BASE_REVISION_SUPPORTED(limineBaseRevision)) {
+    lib::Log::error("Bootloader does not support Limine base revision 6!");
     arch::cpu::halt();
   }
 
-  drivers::serial::init();
-  drivers::serial::writeLine("[BOOT] GooseOS v0.2.0 kernel started");
-
   if (frameBufferRequest.response == nullptr || frameBufferRequest.response->framebuffer_count < 1 ||
       frameBufferRequest.response->framebuffers == nullptr) {
-    drivers::serial::writeLine("[ERROR] No framebuffer available");
+    lib::Log::error("Bootloader did not provide a framebuffer!");
     arch::cpu::halt();
   }
 
   limine_framebuffer* frameBuffer = frameBufferRequest.response->framebuffers[0];
-  if (frameBuffer == nullptr || frameBuffer->address == nullptr) {
-    drivers::serial::writeLine("[ERROR] Invalid framebuffer pointer");
+  if (!gfx::Console::initialize(frameBuffer)) {
+    lib::Log::error("Unsupported framebuffer format (expected 32 bpp)!");
     arch::cpu::halt();
   }
 
-  drivers::serial::write("[INFO] Framebuffer: ");
-  drivers::serial::writeDec(frameBuffer->width);
-  drivers::serial::write("x");
-  drivers::serial::writeDec(frameBuffer->height);
-  drivers::serial::write(" @ ");
-  drivers::serial::writeHex(reinterpret_cast<uintptr_t>(frameBuffer->address));
-  drivers::serial::writeLine("");
+  lib::Log::writeLine("========================================");
+  lib::Log::writeLine("     GooseOS x86_64 Kernel (v0.3.0)     ");
+  lib::Log::writeLine("========================================");
 
-  auto* pixels = static_cast<uint32_t*>(frameBuffer->address);
-  const size_t stride = frameBuffer->pitch / 4;
+  lib::Log::boot("Kernel initialized in 64-bit Long Mode");
+  lib::Log::info("UART 16550 (COM1): 115200 baud, 8N1");
 
-  for (size_t row = 0; row < frameBuffer->height; ++row) {
-    for (size_t column = 0; column < frameBuffer->width; ++column) {
-      pixels[row * stride + column] = 0x0000FF00;
-    }
-  }
+  lib::Log::info("Framebuffer: ");
+  lib::Log::writeDec(frameBuffer->width);
+  lib::Log::write("x");
+  lib::Log::writeDec(frameBuffer->height);
+  lib::Log::write(" @ ");
+  lib::Log::writeHex(reinterpret_cast<uintptr_t>(frameBuffer->address));
+  lib::Log::writeLine("");
 
-  constexpr size_t squareSize = 120;
-  const size_t startX = (frameBuffer->width > squareSize) ? (frameBuffer->width - squareSize) / 2 : 0;
-  const size_t startY = (frameBuffer->height > squareSize) ? (frameBuffer->height - squareSize) / 2 : 0;
-  const size_t endX = (startX + squareSize < frameBuffer->width) ? (startX + squareSize) : frameBuffer->width;
-  const size_t endY = (startY + squareSize < frameBuffer->height) ? (startY + squareSize) : frameBuffer->height;
-
-  for (size_t row = startY; row < endY; ++row) {
-    for (size_t column = startX; column < endX; ++column) {
-      pixels[row * stride + column] = 0x00FFFFFF;
-    }
-  }
-
-  drivers::serial::writeLine("[OK] Screen initialized. Halting CPU.");
+  lib::Log::ok("Console subsystem ready. Halting CPU.");
 
   arch::cpu::halt();
 }

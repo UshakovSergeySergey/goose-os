@@ -17,6 +17,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(kernel.elf
     src/main.cpp
     src/drivers/serial.cpp
+    src/gfx/console.cpp
+    src/lib/log.cpp
 )
 
 target_include_directories(kernel.elf PRIVATE
