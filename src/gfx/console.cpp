@@ -26,7 +26,7 @@ namespace gfx {
     for (size_t row = 0; row < font::GLYPH_HEIGHT; ++row) {
       const uint8_t rowBits = glyph[row];
       for (size_t column = 0; column < font::GLYPH_WIDTH; ++column) {
-        const bool isSet = (rowBits && (0x80 >> column)) != 0;
+        const bool isSet = (rowBits & (0x80 >> column)) != 0;
         putPixel(startX + column, startY + row, isSet ? mFgColor : mBgColor);
       }
     }

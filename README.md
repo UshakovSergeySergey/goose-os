@@ -6,13 +6,18 @@ An educational 64-bit `x86_64` operating system kernel written from scratch in f
 
 ## Project Structure
 
-* `src/main.cpp` — kernel entry point (`kmain`) and linear framebuffer initialization.
+* `src/main.cpp` — kernel entry point (`kmain`) and linear framebuffer console initialization.
 * `src/arch/x86_64/cpu.hpp` — low-level CPU control primitives (`cli`, `sti`, `hlt`, `pause`).
 * `src/arch/x86_64/port.hpp` — type-safe x86 I/O port access (`read<T>`, `write<T>`, `wait`).
 * `src/arch/x86_64/linker.ld` — Higher Half Kernel (`0xffffffff80000000`) linker script with 4 KB page alignment.
 * `src/drivers/serial.hpp` / `serial.cpp` — UART 16550 (`COM1`) serial port driver for early kernel logging.
+* `src/gfx/font8x16.hpp` — 8x16 IBM VGA bitmap font table for framebuffer text rendering.
+* `src/gfx/console.hpp` / `console.cpp` — 32-bit XRGB linear framebuffer text console with scrolling and color support.
+* `src/lib/text_output.hpp` — CRTP static polymorphism helper for string, decimal, and hexadecimal formatting.
+* `src/lib/log.hpp` / `log.cpp` — RAII stream logger (`Log::info()`, `ok()`, `warning()`, `error()`) mirroring output to both Serial and Console.
 * `src/lib/traits.hpp` — freestanding C++20 type traits and concepts.
-* `limine.conf` — Limine bootloader configuration.
+* `assets/bootloader_wallpaper.jpg` — custom mascot wallpaper for the Limine boot menu.
+* `limine.conf` — Limine bootloader configuration and theme settings.
 * `scripts/setup.sh` — downloads and builds the Limine bootloader SDK into `third-party/limine`.
 * `scripts/make-bootable-usb.sh` — flashes the hybrid ISO image onto a USB drive.
 * `CMakeLists.txt` — `x86_64-elf` cross-compilation and hybrid ISO packaging setup.

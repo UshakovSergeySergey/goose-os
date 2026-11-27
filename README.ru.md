@@ -4,15 +4,18 @@
 
 Учебное 64-битное ядро операционной системы на freestanding C++20 для архитектуры `x86_64`, использующее загрузчик **Limine** (`v12.11.1`, ревизия протокола `6`).
 
-## Структура проекта
-
-* `src/main.cpp` — точка входа в ядро (`kmain`) и базовая работа с видеопамятью (Framebuffer).
+* `src/main.cpp` — точка входа в ядро (`kmain`) и инициализация консоли во фреймбуфере (Framebuffer).
 * `src/arch/x86_64/cpu.hpp` — низкоуровневое управление ядром процессора (`cli`, `sti`, `hlt`, `pause`).
 * `src/arch/x86_64/port.hpp` — типобезопасная работа с портами ввода-вывода x86 (`read<T>`, `write<T>`, `wait`).
 * `src/arch/x86_64/linker.ld` — скрипт линковщика (Higher Half Kernel `0xffffffff80000000`, раскладка сегментов по страницам 4 КБ).
 * `src/drivers/serial.hpp` / `serial.cpp` — драйвер последовательного порта UART 16550 (`COM1`) для вывода ранних логов ядра.
+* `src/gfx/font8x16.hpp` — таблица растрового шрифта IBM VGA 8x16 для отрисовки символов во фреймбуфер.
+* `src/gfx/console.hpp` / `console.cpp` — 32-битная текстовая консоль (XRGB) с прокруткой и поддержкой цветов.
+* `src/lib/text_output.hpp` — CRTP-база статического полиморфизма для форматирования строк, десятичных и шестнадцатеричных чисел.
+* `src/lib/log.hpp` / `log.cpp` — потоковый RAII-логгер (`Log::info()`, `ok()`, `warning()`, `error()`), дублирующий вывод в Serial и Console.
 * `src/lib/traits.hpp` — базовые метафункции и концепты C++20 для freestanding-среды.
-* `limine.conf` — конфигурация загрузчика.
+* `assets/bootloader_wallpaper.jpg` — фоновое изображение с логотипом для меню загрузчика Limine.
+* `limine.conf` — конфигурация и цветовая тема загрузчика Limine.
 * `scripts/setup.sh` — скрипт загрузки и сборки SDK Limine в `third-party/limine`.
 * `scripts/make-bootable-usb.sh` — скрипт побитовой записи образа `.iso` на USB-флешку.
 * `CMakeLists.txt` — конфигурация кросс-компиляции (`x86_64-elf`) и упаковки загрузочного `.iso`.
