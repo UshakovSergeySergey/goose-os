@@ -29,6 +29,9 @@ namespace gfx {
     static void setColors(uint32_t foregroundColor, uint32_t backgroundColor) noexcept;
     static void writeChar(char ch) noexcept;
 
+    static uint32_t foregroundColor() noexcept;
+    static uint32_t backgroundColor() noexcept;
+
    private:
     static void putPixel(size_t column, size_t row, uint32_t color) noexcept;
     static void drawGlyph(char ch, size_t column, size_t row) noexcept;

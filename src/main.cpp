@@ -29,38 +29,32 @@ extern "C" void kmain() {
   drivers::Serial::initialize();
 
   if (!LIMINE_BASE_REVISION_SUPPORTED(limineBaseRevision)) {
-    lib::Log::error("Bootloader does not support Limine base revision 6!");
+    lib::Log::error() << "Bootloader does not support Limine base revision 6!";
     arch::cpu::halt();
   }
 
   if (frameBufferRequest.response == nullptr || frameBufferRequest.response->framebuffer_count < 1 ||
       frameBufferRequest.response->framebuffers == nullptr) {
-    lib::Log::error("Bootloader did not provide a framebuffer!");
+    lib::Log::error() << "Bootloader did not provide a framebuffer!";
     arch::cpu::halt();
   }
 
   limine_framebuffer* frameBuffer = frameBufferRequest.response->framebuffers[0];
   if (!gfx::Console::initialize(frameBuffer)) {
-    lib::Log::error("Unsupported framebuffer format (expected 32 bpp)!");
+    lib::Log::error() << "Unsupported framebuffer format (expected 32 bpp)!";
     arch::cpu::halt();
   }
 
-  lib::Log::writeLine("========================================");
-  lib::Log::writeLine("     GooseOS x86_64 Kernel (v0.3.0)     ");
-  lib::Log::writeLine("========================================");
+  lib::Log::info() << "========================================";
+  lib::Log::info() << "     GooseOS x86_64 Kernel (v0.3.0)     ";
+  lib::Log::info() << "========================================";
 
-  lib::Log::boot("Kernel initialized in 64-bit Long Mode");
-  lib::Log::info("UART 16550 (COM1): 115200 baud, 8N1");
+  lib::Log::info() << "Kernel initialized in 64-bit Long Mode";
+  lib::Log::info() << "UART 16550 (COM1): 115200 baud, 8N1";
+  lib::Log::info() << "Framebuffer: " << frameBuffer->width << "x" << frameBuffer->height << " (32 bpp) @ "
+                   << lib::Hex{ reinterpret_cast<uintptr_t>(frameBuffer->address) };
 
-  lib::Log::info("Framebuffer: ");
-  lib::Log::writeDec(frameBuffer->width);
-  lib::Log::write("x");
-  lib::Log::writeDec(frameBuffer->height);
-  lib::Log::write(" @ ");
-  lib::Log::writeHex(reinterpret_cast<uintptr_t>(frameBuffer->address));
-  lib::Log::writeLine("");
-
-  lib::Log::ok("Console subsystem ready. Halting CPU.");
+  lib::Log::ok() << "Console subsystem ready. Halting CPU.";
 
   arch::cpu::halt();
 }

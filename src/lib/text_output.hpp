@@ -59,6 +59,11 @@ namespace lib {
         Derived::writeChar(digits[--index]);
       }
     }
+
+   protected:
+    // Non-virtual destructor is intentional: CRTP static polymorphism only,
+    // avoiding vtable overhead and freestanding operator delete dependencies.
+    ~TextOutput() = default;
   };
 
 }  // namespace lib

@@ -150,4 +150,12 @@ namespace gfx {
     }
   }
 
+  uint32_t Console::foregroundColor() noexcept {
+    return mFgColor;
+  }
+
+  uint32_t Console::backgroundColor() noexcept {
+    return mBgColor;
+  }
+
 }  // namespace gfx
