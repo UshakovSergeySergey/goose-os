@@ -1,5 +1,9 @@
 # GooseOS
 
+<a href="https://github.com/UshakovSergeySergey/goose-os/actions/workflows/build.yml?query=branch%3Amain">
+  <img src="https://img.shields.io/github/actions/workflow/status/UshakovSergeySergey/goose-os/build.yml?branch=main&label=Build%20GooseOS&logo=github" alt="Build GooseOS" width="310">
+</a>
+
 *Read in English: [README.md](README.md)*
 
 ![Обзор GooseOS](docs/preview.png)

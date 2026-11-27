@@ -1,0 +1,46 @@
+name: Build GooseOS
+
+on:
+  push:
+    branches: [main, develop, "feature/**"]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y clang lld cmake xorriso curl tar make gcc
+
+      - name: Setup Limine SDK
+        run: ./scripts/setup.sh
+
+      - name: Configure and build ISO
+        run: |
+          cmake -B build
+          cmake --build build
+
+      - name: Set short SHA
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - name: Upload temporary ISO artifact (branches)
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: actions/upload-artifact@v4
+        with:
+          name: goose-os-${{ env.SHORT_SHA }}
+          path: build/goose-os.iso
+          retention-days: 14
+
+      - name: Publish permanent GitHub Release with ISO (tags)
+        if: "startsWith(github.ref, 'refs/tags/')"
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/goose-os.iso
+          generate_release_notes: true
