@@ -69,6 +69,9 @@ add_custom_target(iso ALL
         ${LIMINE_DIR}/limine-bios-cd.bin
         ${LIMINE_DIR}/limine-uefi-cd.bin
         ${ISO_DIR}/boot/limine/
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/assets/bootloader_wallpaper.jpg
+        ${ISO_DIR}/bootloader_wallpaper.jpg
     COMMAND ${CMAKE_COMMAND} -E copy ${LIMINE_DIR}/BOOTX64.EFI ${ISO_DIR}/EFI/BOOT/
     COMMAND xorriso -as mkisofs
         -b boot/limine/limine-bios-cd.bin
